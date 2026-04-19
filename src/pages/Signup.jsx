@@ -10,12 +10,18 @@ export default function Signup() {
   const [name, setName] = useState('');
   const [role, setRole] = useState('donor');
   const [parishId, setParishId] = useState('');
-  // Hardcoding parishes as requested
-  const parishes = [
-    { id: '1', name: 'Gomesali' },
-    { id: '2', name: 'Mardes' }
-  ];
+  const [parishes, setParishes] = useState([]);
   const [agreed, setAgreed] = useState(false);
+
+  useEffect(() => {
+    const fetchParishes = async () => {
+      const { data, error } = await supabase.from('parishes').select('*');
+      if (!error && data) {
+        setParishes(data);
+      }
+    };
+    fetchParishes();
+  }, []);
   
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -28,6 +34,19 @@ export default function Signup() {
     setLoading(true);
     setError(null);
     
+    // Manual Validations
+    if (!name || !email || !password || !parishId) {
+      setError("Please fill in all required fields.");
+      setLoading(false);
+      return;
+    }
+    
+    if (!agreed) {
+      setError("You must agree to the Terms & Conditions.");
+      setLoading(false);
+      return;
+    }
+    
     try {
       const { data, error: authError } = await supabase.auth.signUp({
         email,
@@ -35,6 +54,11 @@ export default function Signup() {
       });
       
       if (authError) throw authError;
+
+      // Prevent email enumeration silent failures
+      if (data?.user?.identities && data.user.identities.length === 0) {
+        throw new Error('An account with this email already exists.');
+      }
 
       if (data?.user) {
         const { error: dbError } = await supabase.from('users').insert({
@@ -55,7 +79,7 @@ export default function Signup() {
         else navigate('/');
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "An error occurred during signup.");
     } finally {
       setLoading(false);
     }
