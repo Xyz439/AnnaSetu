@@ -84,8 +84,8 @@ export default function ImpactDashboard() {
             </div>
             <div className="h-64 flex items-end justify-between gap-4 px-4 pb-4">
               {impactData.chartData && impactData.chartData.map((data, index) => (
-                <div key={index} className="flex flex-col items-center flex-1 gap-4">
-                  <div className="w-full bg-[var(--color-primary-container)]/80 rounded-t-lg relative group hover:bg-[var(--color-primary)] transition-colors" style={{ height: data.height }}>
+                <div key={index} className="flex flex-col items-center flex-1 gap-4 h-full justify-end">
+                  <div className="w-full bg-[var(--color-primary-container)]/80 rounded-t-lg relative group hover:bg-[var(--color-primary)] transition-colors" style={{ height: data.count > 0 ? data.height : '8px' }}>
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[var(--color-on-surface)] text-[var(--color-surface)] text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{data.count} Donations</div>
                   </div>
                   <span className="text-xs font-bold text-[var(--color-on-surface-variant)] font-label">{data.month}</span>
